@@ -35,7 +35,18 @@ export default {
       topImg: require("../assets/timg.png")
     };
   },
-  components: {}
+
+  methods: {
+    getNewsInfo() {
+      this.$http.get('bulletin/', { params:{ key:'15632ad0534191c2eee477cf3de945e1' }}).then(result => {
+        if(result.body.code === 200){
+          this.newsInfo = result.body.newslist[this.id];
+        }
+      })
+    }
+  },
+  components: {},
+  
 };
 </script>
 
