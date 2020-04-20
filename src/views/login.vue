@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div class="login" @keyup.enter="Login(StudentNum)">
     <div class="bgc">
       <img :src="imgSrc" width="100%" height="100%" alt />
     </div>
@@ -7,22 +7,22 @@
       <img :src="topImg" alt />
       <p class="title">教室信息管理系统</p>
       <br />
-      <input type="text" placeholder="学号" class="inputBox" />
+      <input type="text" placeholder="学号" class="inputBox" v-model="StudentNum" >
       <br />
-      <input type="password" placeholder="密码" class="inputBox" />
+      <input type="password" placeholder="密码" class="inputBox" v-model="StudentPassword" />
       <br />
       <p class="buttonSel">
         <span class="container">
-          <input type="checkbox" id="remCard" />
+          <input type="checkbox" id="remCard" ref="RemInputBox" />
           <span class="checkmark"></span>
-          <label for="remCard">记住密码</label>
+          <label for="remCard" @click="remberPassword()">记住密码</label>
         </span>
         <span>
-          <a href>忘记密码</a>
+          <a class="forget" @click="ForgetPassword">忘记密码</a>
           <a href="/login/mangerLogin">管理员登陆</a>
         </span>
       </p>
-      <button class="loginBtn">登陆</button>
+      <button class="loginBtn" @click="Login(StudentNum)">登陆</button>
     </div>
   </div>
 </template>
@@ -32,21 +32,83 @@ export default {
   data() {
     return {
       imgSrc: require("../assets/loginbag.jpg"),
-      topImg: require("../assets/timg.png")
+      topImg: require("../assets/timg.png"),
+      LoginMsg: [], //接口接收的登陆用户数据
+      StudentNum: this.$cookies.get("Account"), //获取cookies,//从界面输入的账号
+      StudentPassword: this.$cookies.get("password"), //从界面输入的密码
+      PasswordFlag: JSON.parse(this.$cookies.get("PasswordFlag")) //是否要记住密码
     };
   },
 
   methods: {
+    // 从后端接口获取登陆用户的信息
     getNewsInfo() {
-      this.$http.get('bulletin/', { params:{ key:'15632ad0534191c2eee477cf3de945e1' }}).then(result => {
-        if(result.body.code === 200){
-          this.newsInfo = result.body.newslist[this.id];
+      this.$http.get("http://localhost:8080/login/Loginn").then(result => {
+        if (result.status === 200) {
+          console.log(result);
+          this.LoginMsg = result.body;
+          console.log(this.LoginMsg);
         }
-      })
+      });
+    },
+
+    // 登陆按钮
+    Login(StuNum) {
+      var StuNumStr = StuNum.toString();
+      var pasFlag = this.StudentPassword.toString() === this.LoginMsg[StuNum];
+      if (!(StuNumStr in this.LoginMsg)) {
+        alert("您输入的学号不存在");
+      } else if (this.StudentPassword == "") {
+        alert("请输入密码");
+      } else if (!pasFlag) {
+        alert("您输入的密码有误");
+      } else {
+        this.$cookies.set("Account", StuNum); //存cookies
+        this.$cookies.set("identity","student")
+        if (this.PasswordFlag) {
+          this.$cookies.set("PasswordFlag", this.PasswordFlag);
+          this.$cookies.set("password", this.StudentPassword);
+        } else if (!this.PasswordFlag) {
+          this.$cookies.set("password", "");
+          this.$cookies.set("PasswordFlag", this.PasswordFlag);
+        }
+        this.goInfo();
+      }
+    },
+
+    // 跳转到教室详情页
+    goInfo() {
+      this.$router.push("/classroomMsg");
+    },
+
+    // 忘记密码
+    ForgetPassword() {
+      alert("请联系老师");
+    },
+
+    // 是否需要记住密码
+    remberPassword() {
+      this.PasswordFlag = !this.PasswordFlag;
+    },
+
+    // 根据cookie使记住密码选择框勾选或不勾选
+    InitRemPasInputBox() {
+      this.$nextTick(() => {
+        if (this.PasswordFlag === true) {
+          this.$refs.RemInputBox.setAttribute("checked",'')
+      }})
+      
     }
   },
-  components: {},
-  
+
+  created() {
+    if (this.$cookies.get("PasswordFlag") === null) {
+      this.$cookies.set("PasswordFlag", false);
+    }
+    this.InitRemPasInputBox()
+    this.getNewsInfo()
+  },
+  components: {}
 };
 </script>
 
@@ -92,12 +154,12 @@ export default {
       font-size: 11px;
       display: inline-flex;
       justify-content: space-between;
+      cursor: pointer;
       .container {
         display: block;
         position: relative;
         padding-left: 15px;
         margin-bottom: 12px;
-        cursor: pointer;
       }
 
       /* Hide the browser's default checkbox */
@@ -117,7 +179,6 @@ export default {
         left: 0;
         height: 10px;
         width: 10px;
-        // background-color: #eee;
         border: 0.5px solid rgb(223, 252, 252);
       }
 

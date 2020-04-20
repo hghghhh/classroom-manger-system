@@ -18,7 +18,7 @@
         <el-col :span="8">
           <div class="grid-content bg-purple userMsg">
             <img :src="userSrc" />
-            <el-button type="text">你好，请登陆</el-button>
+            <el-button type="text" @click="AccountOperation()">{{Account}}</el-button>
           </div>
         </el-col>
       </el-row>
@@ -124,9 +124,35 @@ export default {
           return time.getTime() > Date.now();
         }
       },
-      value1: ""
+      value1: "",
+      Account:this.$cookies.get("Account") || "你好，请登录", //用户标志
+      LoginStatus:false //登录状态
     };
+  },
+
+  methods:{
+
+    // 获取登陆状态
+    getLoginStatus(){
+      if(this.Account !== "你好，请登录"){
+        this.LoginStatus = true
+      }
+    },
+    
+    // 用户按钮点击操作
+    AccountOperation(){
+      if(this.LoginStatus === false){
+        this.$router.push("/login");
+      }
+    }
+    
+  },
+
+  created(){
+    this.getLoginStatus()
   }
+
+
 };
 </script>
 

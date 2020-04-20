@@ -1,5 +1,5 @@
 <template>
-  <div class="mangerLogin">
+  <div class="mangerLogin" @keyup.enter="AdministratorLogin(Administratoraccount)">
     <div class="bgc">
       <img :src="imgSrc" width="100%" height="100%" alt />
     </div>
@@ -7,11 +7,11 @@
       <img :src="topImg" alt />
       <p class="title">教室信息管理系统</p>
       <br />
-      <input type="text" placeholder="帐号" class="inputBox" />
+      <input type="text" placeholder="帐号" class="inputBox" v-model="Administratoraccount" />
       <br />
-      <input type="password" placeholder="密码" class="inputBox" />
+      <input type="password" placeholder="密码" class="inputBox" v-model="AdministratorPassword" />
       <br />
-      <button class="loginBtn">登陆</button>
+      <button class="loginBtn" @click="AdministratorLogin(Administratoraccount)">管理员登陆</button>
     </div>
   </div>
 </template>
@@ -21,10 +21,52 @@ export default {
   data() {
     return {
       imgSrc: require("../assets/loginbag.jpg"),
-      topImg: require("../assets/timg.png")
+      topImg: require("../assets/timg.png"),
+      Administratoraccount:this.$cookies.get("Account"),//输入的管理员账号
+      AdministratorPassword:"",//输入的管理员密码
+      AdministratorLoginMsg:[]//存储后端获取的管理员的账号数据
+
     };
   },
-  components: {}
+  components: {},
+
+  methods:{
+
+    // 获取管理员登录信息
+    GetAdministratorlMsg(){
+        this.$http.get('http://localhost:8080/AdministratorLogin/AdministratorLoginMsg').then(result =>{
+          if(result.status === 200){
+          this.AdministratorLoginMsg = result.body;
+        }
+        })
+      },
+
+      // 验证账号密码是否正确并登录
+      AdministratorLogin(Administrator) {
+      var pasFlag = this.AdministratorPassword.toString() === this.AdministratorLoginMsg[Administrator];
+      if (!(Administrator in this.AdministratorLoginMsg)) {
+        alert("您输入的账号不存在");
+      } else if (this.AdministratorPassword == "") {
+        alert("请输入密码");
+      } else if (!pasFlag) {
+        alert("您输入的密码有误");
+      } else {
+        this.$cookies.set("Account", Administrator)
+        this.$cookies.set("identity","Administrator")
+        this.$cookies.set("password", "")
+        this.goInfo();
+      }
+    },
+
+    // 登录成功，跳转详情页
+    goInfo () {
+      this.$router.push("/classroomMsg");
+    }
+  },
+
+  created(){
+     this.GetAdministratorlMsg()
+   }
 };
 </script>
 
