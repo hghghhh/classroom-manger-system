@@ -28,39 +28,13 @@
       <span class="title">教室管理系统</span>
       <!-- <el-divider></el-divider> -->
       <el-collapse v-model="activeName" accordion>
-        <el-collapse-item title="教1" name="1">
-          <el-button type="primary">1楼</el-button>
-          <el-button type="primary">2楼</el-button>
-          <el-button type="primary">3楼</el-button>
-          <el-button type="primary">4楼</el-button>
-          <el-button type="primary">5楼</el-button>
-        </el-collapse-item>
-        <el-collapse-item title="教2" name="2">
-          <el-button type="primary">1楼</el-button>
-          <el-button type="primary">2楼</el-button>
-          <el-button type="primary">3楼</el-button>
-          <el-button type="primary">4楼</el-button>
-          <el-button type="primary">5楼</el-button>
-        </el-collapse-item>
-        <el-collapse-item title="教3" name="3">
-          <el-button type="primary">1楼</el-button>
-          <el-button type="primary">2楼</el-button>
-          <el-button type="primary">3楼</el-button>
-        </el-collapse-item>
-        <el-collapse-item title="教4" name="4">
-          <el-button type="primary">1楼</el-button>
-          <el-button type="primary">2楼</el-button>
-          <el-button type="primary">3楼</el-button>
-        </el-collapse-item>
-        <el-collapse-item title="教5" name="5">
-          <el-button type="primary">1楼</el-button>
-          <el-button type="primary">2楼</el-button>
-          <el-button type="primary">3楼</el-button>
-        </el-collapse-item>
-        <el-collapse-item title="教6" name="6">
-          <el-button type="primary">1楼</el-button>
-          <el-button type="primary">2楼</el-button>
-          <el-button type="primary">3楼</el-button>
+        <el-collapse-item
+          :title="item"
+          :name="index"
+          v-for="(item,index) in TechingBuildMsg"
+          :key="index"
+        >
+          <el-button type="primary" v-for="(item,index) in FloorMsg" :key="index">{{item.value}}</el-button>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -125,34 +99,62 @@ export default {
         }
       },
       value1: "",
-      Account:this.$cookies.get("Account") || "你好，请登录", //用户标志
-      LoginStatus:false //登录状态
+      Account: this.$cookies.get("Account") || "你好，请登录", //用户标志
+      LoginStatus: false, //登录状态
+      TechingBuildMsg: [], //存储按教学楼楼号排序的教学楼楼号
+      FloorMsg: [] //存储按教学楼楼号排好序的、各教学楼的楼层信息
     };
   },
 
-  methods:{
-
+  methods: {
     // 获取登陆状态
-    getLoginStatus(){
-      if(this.Account !== "你好，请登录"){
-        this.LoginStatus = true
+    getLoginStatus() {
+      if (this.Account !== "你好，请登录") {
+        this.LoginStatus = true;
       }
     },
-    
+
     // 用户按钮点击操作
-    AccountOperation(){
-      if(this.LoginStatus === false){
+    AccountOperation() {
+      if (this.LoginStatus === false) {
         this.$router.push("/login");
       }
+    },
+
+    // 获取教学楼的信息
+    getTechingBuildingMsg() {
+      this.$http
+        .get("http://localhost:8080/techingBuilding/techingBuildingMsg")
+        .then(result => {
+          if (result.status === 200) {
+            var buildingArr = []; //用来将从接口接收到的教学楼楼号排序
+            for (var a in result.body) {
+              buildingArr.push(a);
+            }
+            this.TechingBuildMsg = buildingArr.sort();
+            var floorArr = []; //用来将从接口接受到每栋教学楼的楼层信息按教学楼楼号顺序排序
+            for (var i = 1; i <= Object.keys(result.body).length; i++) {
+              floorArr.push(result.body["教" + i]);
+            }
+            
+            
+              
+            console.log(floorArr);
+            this.FloorMsg = floorArr[0]
+              .replace("[", "")
+              .replace("]", "")
+              .split(",");
+            console.log(this.FloorMsg);
+          }
+
+        });
     }
-    
   },
 
-  created(){
-    this.getLoginStatus()
+  created() {
+    this.getLoginStatus();
+    this.getTechingBuildingMsg();
   }
-
-
 };
 </script>
 

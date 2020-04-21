@@ -45,7 +45,6 @@ export default {
     getNewsInfo() {
       this.$http.get("http://localhost:8080/login/Loginn").then(result => {
         if (result.status === 200) {
-          console.log(result);
           this.LoginMsg = result.body;
           console.log(this.LoginMsg);
         }
