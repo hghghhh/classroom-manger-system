@@ -7,7 +7,7 @@
       <img :src="topImg" alt />
       <p class="title">教室信息管理系统</p>
       <br />
-      <input type="text" placeholder="帐号" class="inputBox" v-model="Administratoraccount" />
+      <input type="text" placeholder="管理员帐号" class="inputBox" v-model="Administratoraccount" />
       <br />
       <input type="password" placeholder="密码" class="inputBox" v-model="AdministratorPassword" />
       <br />

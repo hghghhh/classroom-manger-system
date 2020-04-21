@@ -7,7 +7,7 @@
       <img :src="topImg" alt />
       <p class="title">教室信息管理系统</p>
       <br />
-      <input type="text" placeholder="学号" class="inputBox" v-model="StudentNum" >
+      <input type="text" placeholder="学号/教工号" class="inputBox" v-model="StudentNum" >
       <br />
       <input type="password" placeholder="密码" class="inputBox" v-model="StudentPassword" />
       <br />
@@ -34,7 +34,7 @@ export default {
       imgSrc: require("../assets/loginbag.jpg"),
       topImg: require("../assets/timg.png"),
       LoginMsg: [], //接口接收的登陆用户数据
-      StudentNum: this.$cookies.get("Account"), //获取cookies,//从界面输入的账号
+      StudentNum: this.$cookies.get("Account"), //获取cookies,从界面输入的账号
       StudentPassword: this.$cookies.get("password"), //从界面输入的密码
       PasswordFlag: JSON.parse(this.$cookies.get("PasswordFlag")) //是否要记住密码
     };
@@ -54,13 +54,12 @@ export default {
 
     // 登陆按钮
     Login(StuNum) {
-      var StuNumStr = StuNum.toString();
-      var pasFlag = this.StudentPassword.toString() === this.LoginMsg[StuNum];
-      if (!(StuNumStr in this.LoginMsg)) {
-        alert("您输入的学号不存在");
-      } else if (this.StudentPassword == "") {
+      var pasFlag = this.StudentPassword === this.LoginMsg[StuNum];
+      if (!(StuNum in this.LoginMsg)) {
+        alert("您输入的学号/教工号不存在");
+      } else if (this.StudentPassword === null) {
         alert("请输入密码");
-      } else if (!pasFlag) {
+      } else if (!pasFlag ) {
         alert("您输入的密码有误");
       } else {
         this.$cookies.set("Account", StuNum); //存cookies

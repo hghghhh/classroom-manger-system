@@ -12,8 +12,8 @@
 export default {
   data() {
     return {
-      flag:true,
-      bgcSrc:require("./assets/GdutDoor.jpg")
+      flag:true, //用来控制图片是否显示的标志
+      bgcSrc:require("./assets/GdutDoor.jpg") //图片路径
     }
   },
   created() {
