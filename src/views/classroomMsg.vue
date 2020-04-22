@@ -90,7 +90,7 @@ export default {
       LoginStatus: false, //登录状态
       TechingBuildMsg: [], //存储教学楼楼号和楼层信息
       ClassroomMsg: [], //存储教室信息
-      ClassroomInputBoxFlag: true,//教室申请框的显示隐藏切换标志
+      ClassroomInputBoxFlag: false,//教室申请框的显示隐藏切换标志
       input: ""
     };
   },
@@ -225,19 +225,17 @@ export default {
     // 教室按钮点击操作
     ClassroomOperation(btn) {
       var ClassroomStatus = btn.target.innerText.slice(4)
-      console.log(ClassroomStatus)
+      console.log(btn.target.innerText.slice(4).length)
       var indentity = this.$cookies.get("identity")
       if (this.LoginStatus === false) {
         this.$alert("请登录后再操作", "警告");
       } else if (ClassroomStatus.indexOf("申请中") !== -1 && indentity === "student") {
         this.$alert("您没有管理员权限","警告");
-      } else if (ClassroomStatus !== "空闲"){
+      } else if (ClassroomStatus.trim() !== "空闲"){
         this.$alert("该教室已被占用，请选择另一间教室", "警告")
-        console.log(1)
-      } else if (ClassroomStatus === "空闲") {
+      } else if (ClassroomStatus.trim() === "空闲") {
         this.ClassroomInputBoxFlag = true;
         this.SubmitClassroom()
-        console.log(2)
       }
     },
 
