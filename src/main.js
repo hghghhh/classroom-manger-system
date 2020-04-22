@@ -13,10 +13,11 @@ Vue.use(ElementUI);
 Vue.use(vueResource);
 Vue.use(VueCookies);
 
-// Vue.http.options.root = '/Getlogin';
-Vue.http.options.emulateJSON = true;
 
+Vue.http.options.emulateJSON = true;
 Vue.config.productionTip = false;
+
+
 
 new Vue({
   router,
