@@ -45,11 +45,11 @@ export default {
       AdministratorLogin(Administrator) {
       var pasFlag = this.AdministratorPassword.toString() === this.AdministratorLoginMsg[Administrator];
       if (!(Administrator in this.AdministratorLoginMsg)) {
-        alert("您输入的账号不存在");
+        this.$alert("您输入的账号不存在","警告");
       } else if (this.AdministratorPassword == "") {
-        alert("请输入密码");
+        this.$alert("请输入密码","警告");
       } else if (!pasFlag) {
-        alert("您输入的密码有误");
+        this.$alert("您输入的密码有误","警告");
       } else {
         this.$cookies.set("Account", Administrator)
         this.$cookies.set("identity","Administrator")

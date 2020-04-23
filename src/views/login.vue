@@ -56,11 +56,11 @@ export default {
     Login(StuNum) {
       var pasFlag = this.StudentPassword === this.LoginMsg[StuNum];
       if (!(StuNum in this.LoginMsg)) {
-        alert("您输入的学号/教工号不存在");
+        this.$alert("您输入的学号/教工号不存在","警告");
       } else if (this.StudentPassword === null) {
-        alert("请输入密码");
+        this.$alert("请输入密码","警告");
       } else if (!pasFlag ) {
-        alert("您输入的密码有误");
+        this.$alert("您输入的密码有误","警告");
       } else {
         this.$cookies.set("Account", StuNum); //存cookies
         this.$cookies.set("identity","student")
