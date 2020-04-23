@@ -2,14 +2,14 @@
   <div class="classroomMsg">
     <!-- 教室申请活动信息输入框 -->
     <div class="classroomInputBox" v-show="ClassroomInputBoxFlag">
-      <p>
-        请输入申请的活动类型
+      <p><br>
+        请输入申请的活动类型<br/>
         <button class="close" @click="ClassroomInputBoxFlag = false">X</button>
       </p>
       <el-input v-model="input" placeholder="请输入内容" size="mini"></el-input>
       <p class="button">
         <el-button size="small" @click="ClassroomInputBoxFlag = false">取消</el-button>
-        <el-button type="primary" size="small">确定</el-button>
+        <el-button type="primary" size="small" @click="SubmitClassroom()">确定</el-button>
       </p>
     </div>
     <!-- 顶部栏 -->
@@ -90,8 +90,12 @@ export default {
       LoginStatus: false, //登录状态
       TechingBuildMsg: [], //存储教学楼楼号和楼层信息
       ClassroomMsg: [], //存储教室信息
+      ClassroomMsg1:[],
       ClassroomInputBoxFlag: false,//教室申请框的显示隐藏切换标志
-      input: ""
+      input: "",//教室申请框输入的内容
+      ClassroomStatus:"",//当前点击的教室的状态
+      localItem:"",//当前点击的教学楼和楼层
+      ClassroomItem:"",//当前点击的具体教室号
     };
   },
 
@@ -140,7 +144,7 @@ export default {
     //创建localstorage，并初始化各教学楼各楼层教室信息
     InitClassroomMsg() {
       var Jiao11 =
-        "{101:上课,102:空闲,103:社团活动:(申请中),104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:上课,102:空闲,103:社团活动-(申请中),104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
       var Jiao12 =
         "{201:空闲,202:上课,203:社团活动,204:空闲,205:上课,206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
       var Jiao13 =
@@ -209,40 +213,68 @@ export default {
 
     //获取教室信息
     getClassroomMsg(str1, str2) {
-      var localItem = str1 + "-" + str2;
+      this.localItem = str1 + "-" + str2;
       var ObjTemp = localStorage
-        .getItem(localItem)
+        .getItem(this.localItem)
         .replace("{", "")
         .replace("}", "")
         .split(",");
-      var ArrTemp = [];
+
+      // 切割元素，切割“-（申请中）”
+      var ArrTemp = []
       ObjTemp.forEach(function(e) {
-        ArrTemp.push(e.split(":"));
+        ArrTemp.push(e.split(/:|-/));
       });
       this.ClassroomMsg = ArrTemp;
+      
+      // 切割元素，不切割“-（申请中）”
+      var ArrTemp1 = []
+      ObjTemp.forEach(function(e) {
+        ArrTemp1.push(e.split(/:/));
+      });
+      this.ClassroomMsg1 = ArrTemp1
     },
 
     // 教室按钮点击操作
     ClassroomOperation(btn) {
-      var ClassroomStatus = btn.target.innerText.slice(4)
-      console.log(btn.target.innerText.slice(4).length)
+      this.ClassroomStatus = btn.target.innerText.slice(4)
+      this.ClassroomItem = btn.target.innerText.slice(0,3)
       var indentity = this.$cookies.get("identity")
       if (this.LoginStatus === false) {
         this.$alert("请登录后再操作", "警告");
-      } else if (ClassroomStatus.indexOf("申请中") !== -1 && indentity === "student") {
+      } else if (this.ClassroomStatus.indexOf("申请中") !== -1 && indentity === "student") {
         this.$alert("您没有管理员权限","警告");
-      } else if (ClassroomStatus.trim() !== "空闲"){
+      } else if (this.ClassroomStatus.trim() !== "空闲"){
         this.$alert("该教室已被占用，请选择另一间教室", "警告")
-      } else if (ClassroomStatus.trim() === "空闲") {
+      } else if (this.ClassroomStatus.trim() === "空闲") {
         this.ClassroomInputBoxFlag = true;
-        this.SubmitClassroom()
       }
     },
 
 
     // 提交教室申请操作
     SubmitClassroom(){
-
+      this.ClassroomItem.slice(1)
+      var NewClassItem = parseInt(this.ClassroomItem.slice(1))
+      var NewClassInfoMsg = this.input + "-(申请中)"
+      this.ClassroomMsg1[NewClassItem-1][1] = NewClassInfoMsg //对教室状态重新赋值
+      // 将教室状态存入内存
+      var a = ""
+      for(let i = 0; i < this.ClassroomMsg1.length; i++){
+        if(i === 0){
+          a += this.ClassroomMsg1[i].toString().replace(",",":")
+        }else{
+          a = a + "," +this.ClassroomMsg1[i].toString().replace(",",":")
+        }
+      }
+      var NewClassMsg = "{" + a + "}"
+      localStorage.setItem(this.localItem,NewClassMsg)
+      this.ClassroomInputBoxFlag = false //将输入框隐藏
+      this.input = ""
+      this.$alert("提交申请成功，请耐心等待管理员批准", "温馨提示");
+      setTimeout(() => {
+        this.$router.go(0);
+      }, 2000);
     }
 
   },
@@ -271,15 +303,22 @@ export default {
     background-color: #ccc;
     position: absolute;
     left: 30%;
-    top: 20%;
+    top: 30%;
     z-index: 99;
     border-radius: 3px;
+    p{
+    font-size: 18px;
+    line-height: 1;
+    color: #303133;
+    }
     .close{
       border: none;
       background-color: #ccc;
       cursor: pointer;
       color: #909399;
-      float: right;
+      position: absolute;
+      right: 2%;
+      top: 5%;
     }
     .close:hover{
       color: #4AA3FF;
@@ -288,12 +327,12 @@ export default {
       width: 50%;
       height: 10%;
       position: absolute;
-      top: 40%;
-      left: 5%;
+      top: 65%;
+      left: 2%;
     }
     .button{
       position: absolute;
-      bottom: 10%;
+      top: 65%;
       right: 5%;
     }
   }
@@ -354,7 +393,7 @@ export default {
     left: 32%;
     width: 67%;
     button {
-      width: 8%;
+      width: 10%;
       height: 50px;
       margin: 10px;
       padding: 5px;
