@@ -12,10 +12,10 @@
       <input type="password" placeholder="密码" class="inputBox" v-model="StudentPassword" />
       <br />
       <p class="buttonSel">
-        <span class="container">
+        <span class="container" @click="remberPassword()">
           <input type="checkbox" id="remCard" ref="RemInputBox" />
           <span class="checkmark"></span>
-          <label for="remCard" @click="remberPassword()">记住密码</label>
+          <label for="remCard" >记住密码</label>
         </span>
         <span>
           <a class="forget" @click="ForgetPassword">忘记密码</a>
@@ -41,6 +41,7 @@ export default {
   },
 
   methods: {
+
     // 从后端接口获取登陆用户的信息
     getNewsInfo() {
       this.$http.get("http://localhost:8080/login/Loginn").then(result => {
@@ -81,7 +82,7 @@ export default {
 
     // 忘记密码
     ForgetPassword() {
-      alert("请联系老师");
+      this.$alert("请联系老师","警告");
     },
 
     // 是否需要记住密码

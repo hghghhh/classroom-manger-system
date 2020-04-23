@@ -2,14 +2,27 @@
   <div class="classroomMsg">
     <!-- 教室申请活动信息输入框 -->
     <div class="classroomInputBox" v-show="ClassroomInputBoxFlag">
-      <p><br>
-        请输入申请的活动类型<br/>
+      <p>
+        <br />请输入申请的活动类型
+        <br />
         <button class="close" @click="ClassroomInputBoxFlag = false">X</button>
       </p>
       <el-input v-model="input" placeholder="请输入内容" size="mini"></el-input>
       <p class="button">
         <el-button size="small" @click="ClassroomInputBoxFlag = false">取消</el-button>
         <el-button type="primary" size="small" @click="SubmitClassroom()">确定</el-button>
+      </p>
+    </div>
+    <!-- 管理员审批教室活动框 -->
+    <div class="AdministratorHandleBox" v-show="AdministratorHandleBoxFlag">
+      <p>
+        <br />您确定要允许通过该教室的预约请求吗？
+        <br />
+        <button class="close" @click="AdministratorHandleBoxFlag = false">X</button>
+      </p>
+      <p class="button">
+        <el-button size="small" @click="AdministratorHandleBoxFlag = false">取消</el-button>
+        <el-button type="primary" size="small" @click="AdministratorHandle()">确定</el-button>
       </p>
     </div>
     <!-- 顶部栏 -->
@@ -65,7 +78,7 @@
           {{value[0]}}
           <br />
           {{value[1]}}
-          <br/>
+          <br />
           {{value[2]}}
         </el-button>
       </el-card>
@@ -90,12 +103,13 @@ export default {
       LoginStatus: false, //登录状态
       TechingBuildMsg: [], //存储教学楼楼号和楼层信息
       ClassroomMsg: [], //存储教室信息
-      ClassroomMsg1:[],
-      ClassroomInputBoxFlag: false,//教室申请框的显示隐藏切换标志
-      input: "",//教室申请框输入的内容
-      ClassroomStatus:"",//当前点击的教室的状态
-      localItem:"",//当前点击的教学楼和楼层
-      ClassroomItem:"",//当前点击的具体教室号
+      ClassroomMsg1: [],
+      ClassroomInputBoxFlag: false, //教室申请框的显示隐藏切换标志
+      input: "", //教室申请框输入的内容
+      ClassroomStatus: "", //当前点击的教室的状态
+      localItem: "", //当前点击的教学楼和楼层
+      ClassroomItem: "", //当前点击的具体教室号
+      AdministratorHandleBoxFlag: false //管理员处理教室请求的显示隐藏切换标志
     };
   },
 
@@ -144,49 +158,49 @@ export default {
     //创建localstorage，并初始化各教学楼各楼层教室信息
     InitClassroomMsg() {
       var Jiao11 =
-        "{101:上课,102:空闲,103:社团活动-(申请中),104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:上课,102:空闲,103:社团活动-(申请中),104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课-(申请中),110:空闲}";
       var Jiao12 =
-        "{201:空闲,202:上课,203:社团活动,204:空闲,205:上课,206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
+        "{201:空闲,202:上课,203:社团活动-(申请中),204:空闲,205:上课,206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
       var Jiao13 =
-        "{301:空闲,302:空闲,303:上课,304:空闲,305:上课,306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
+        "{301:空闲,302:空闲,303:上课,304:空闲,305:上课-(申请中),306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
       var Jiao14 =
-        "{401:空闲,402:社团活动,403:社团活动,404:上课,405:上课,406:空闲,407:社团活动,408:空闲,409:上课,410:空闲}";
+        "{401:空闲,402:社团活动,403:社团活动-(申请中),404:上课,405:上课-(申请中),406:空闲,407:社团活动,408:空闲,409:上课,410:空闲}";
       var Jiao15 =
-        "{501:上课,502:上课,503:社团活动,504:空闲,505:上课,506:空闲,507:空闲,508:空闲,509:上课,510:空闲}";
+        "{501:上课,502:上课,503:社团活动-(申请中),504:空闲,505:上课,506:空闲,507:空闲,508:空闲,509:上课,510:空闲}";
       var Jiao21 =
-        "{101:空闲,102:空闲,103:上课,104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:空闲,102:空闲,103:上课-(申请中),104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
       var Jiao22 =
-        "{201:上课,202:上课,203:空闲,204:空闲,205:上课,206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
+        "{201:上课-(申请中),202:上课,203:空闲,204:空闲,205:上课-(申请中),206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
       var Jiao23 =
-        "{301:空闲,302:上课,303:社团活动,304:空闲,305:上课,306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
+        "{301:空闲,302:上课,303:社团活动-(申请中),304:空闲,305:上课-(申请中),306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
       var Jiao24 =
-        "{401:空闲,402:上课,403:社团活动,404:空闲,405:上课,406:空闲,407:社团活动,408:空闲,409:上课,410:空闲}";
+        "{401:空闲,402:上课,403:社团活动-(申请中),404:空闲,405:上课,406:空闲,407:社团活动,408:空闲,409:上课-(申请中),410:空闲}";
       var Jiao25 =
-        "{501:上课,502:上课,503:空闲,504:空闲,505:上课,506:空闲,507:社团活动,508:空闲,509:上课,510:空闲}";
+        "{501:上课,502:上课-(申请中),503:空闲,504:空闲,505:上课,506:空闲,507:社团活动-(申请中),508:空闲,509:上课,510:空闲}";
       var Jiao31 =
-        "{101:空闲,102:上课,103:社团活动,104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:空闲,102:上课-(申请中),103:社团活动,104:空闲,105:上课,106:空闲,107:社团活动-(申请中),108:空闲,109:上课,110:空闲}";
       var Jiao32 =
-        "{201:空闲,202:上课,203:社团活动,204:空闲,205:上课,206:空闲,207:上课,208:空闲,209:上课,210:空闲}";
+        "{201:空闲,202:上课,203:社团活动-(申请中),204:空闲,205:上课-(申请中),206:空闲,207:上课,208:空闲,209:上课,210:空闲}";
       var Jiao33 =
-        "{301:上课,302:上课,303:上课,304:空闲,305:上课,306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
+        "{301:上课,302:上课,303:上课,304:空闲,305:上课-(申请中),306:空闲,307:社团活动-(申请中),308:空闲,309:上课,310:空闲}";
       var Jiao41 =
-        "{101:空闲,102:上课,103:社团活动,104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:空闲,102:上课,103:社团活动-(申请中),104:空闲,105:上课-(申请中),106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
       var Jiao42 =
-        "{201:空闲,202:上课,203:上课,204:空闲,205:上课,206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
+        "{201:空闲,202:社团活动,203:社团活动-(申请中),204:空闲,205:上课-(申请中),206:空闲,207:空闲,208:空闲,209:上课,210:空闲}";
       var Jiao43 =
-        "{301:上课,302:空闲,303:社团活动,304:空闲,305:上课,306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
+        "{301:上课-(申请中),302:空闲,303:社团活动-(申请中),304:空闲,305:上课,306:空闲,307:社团活动,308:空闲,309:上课,310:空闲}";
       var Jiao51 =
-        "{101:空闲,102:上课,103:社团活动,104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:空闲,102:上课-(申请中),103:社团活动-(申请中),104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
       var Jiao52 =
-        "{201:空闲,202:上课,203:空闲,204:空闲,205:上课,206:空闲,207:社团活动,208:空闲,209:上课,210:空闲}";
+        "{201:空闲,202:上课-(申请中),203:空闲,204:空闲,205:上课,206:空闲,207:社团活动-(申请中),208:空闲,209:上课,210:空闲}";
       var Jiao53 =
-        "{301:上课,302:上课,303:社团活动,304:空闲,305:上课,306:空闲,307:上课,308:空闲,309:上课,310:空闲}";
+        "{301:上课,302:上课,303:社团活动-(申请中),304:空闲,305:上课,306:空闲,307:上课-(申请中),308:空闲,309:上课,310:空闲}";
       var Jiao61 =
-        "{101:空闲,102:上课,103:社团活动,104:空闲,105:上课,106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
+        "{101:空闲,102:上课-(申请中),103:社团活动,104:空闲,105:上课-(申请中),106:空闲,107:社团活动,108:空闲,109:上课,110:空闲}";
       var Jiao62 =
-        "{201:上课,202:空闲,203:上课,204:空闲,205:上课,206:空闲,207:社团活动,208:空闲,209:上课,210:空闲}";
+        "{201:上课,202:空闲,203:上课,204:空闲,205:上课-(申请中),206:空闲,207:社团活动-(申请中),208:空闲,209:上课,210:空闲}";
       var Jiao63 =
-        "{301:空闲,302:上课,303:社团活动,304:空闲,305:上课,306:空闲,307:空闲,308:空闲,309:上课,310:空闲}";
+        "{301:空闲,302:上课,303:社团活动-(申请中),304:空闲,305:上课,306:空闲,307:空闲,308:空闲,309:上课-(申请中),310:空闲}";
       localStorage.setItem("教1-1楼", Jiao11);
       localStorage.setItem("教1-2楼", Jiao12);
       localStorage.setItem("教1-3楼", Jiao13);
@@ -221,62 +235,91 @@ export default {
         .split(",");
 
       // 切割元素，切割“-（申请中）”
-      var ArrTemp = []
+      var ArrTemp = [];
       ObjTemp.forEach(function(e) {
         ArrTemp.push(e.split(/:|-/));
       });
       this.ClassroomMsg = ArrTemp;
-      
+
       // 切割元素，不切割“-（申请中）”
-      var ArrTemp1 = []
+      var ArrTemp1 = [];
       ObjTemp.forEach(function(e) {
         ArrTemp1.push(e.split(/:/));
       });
-      this.ClassroomMsg1 = ArrTemp1
+      this.ClassroomMsg1 = ArrTemp1;
     },
 
     // 教室按钮点击操作
     ClassroomOperation(btn) {
-      this.ClassroomStatus = btn.target.innerText.slice(4)
-      this.ClassroomItem = btn.target.innerText.slice(0,3)
-      var indentity = this.$cookies.get("identity")
+      this.ClassroomStatus = btn.target.innerText.slice(4);
+      this.ClassroomItem = btn.target.innerText.slice(0, 3);
+      var indentity = this.$cookies.get("identity");
       if (this.LoginStatus === false) {
         this.$alert("请登录后再操作", "警告");
-      } else if (this.ClassroomStatus.indexOf("申请中") !== -1 && indentity === "student") {
-        this.$alert("您没有管理员权限","警告");
-      } else if (this.ClassroomStatus.trim() !== "空闲"){
-        this.$alert("该教室已被占用，请选择另一间教室", "警告")
-      } else if (this.ClassroomStatus.trim() === "空闲") {
-        this.ClassroomInputBoxFlag = true;
+      } else if (indentity === "student") {
+        if (this.ClassroomStatus.indexOf("申请中") !== -1) {
+          this.$alert("您没有管理员权限,暂不支持该操作", "警告");
+        } else if (this.ClassroomStatus.trim() !== "空闲") {
+          this.$alert("该教室已被占用，请选择另一间教室", "警告");
+        } else if (this.ClassroomStatus.trim() === "空闲") {
+          this.ClassroomInputBoxFlag = true;
+        }
+      } else if (indentity === "Administrator") {
+        if (this.ClassroomStatus.indexOf("申请中") !== -1) {
+          this.AdministratorHandleBoxFlag = true;
+        }
       }
     },
 
-
-    // 提交教室申请操作
-    SubmitClassroom(){
-      this.ClassroomItem.slice(1)
-      var NewClassItem = parseInt(this.ClassroomItem.slice(1))
-      var NewClassInfoMsg = this.input + "-(申请中)"
-      this.ClassroomMsg1[NewClassItem-1][1] = NewClassInfoMsg //对教室状态重新赋值
+    // 处理教室时对教室状态重新赋值并载入内存
+    DeelClassInfo(NewMsg, NewItem) {
+      this.ClassroomMsg1[NewItem - 1][1] = NewMsg; //对教室状态重新赋值
       // 将教室状态存入内存
-      var a = ""
-      for(let i = 0; i < this.ClassroomMsg1.length; i++){
-        if(i === 0){
-          a += this.ClassroomMsg1[i].toString().replace(",",":")
-        }else{
-          a = a + "," +this.ClassroomMsg1[i].toString().replace(",",":")
+      var a = "";
+      for (let i = 0; i < this.ClassroomMsg1.length; i++) {
+        if (i === 0) {
+          a += this.ClassroomMsg1[i].toString().replace(",", ":");
+        } else {
+          a = a + "," + this.ClassroomMsg1[i].toString().replace(",", ":");
         }
       }
-      var NewClassMsg = "{" + a + "}"
-      localStorage.setItem(this.localItem,NewClassMsg)
-      this.ClassroomInputBoxFlag = false //将输入框隐藏
-      this.input = ""
-      this.$alert("提交申请成功，请耐心等待管理员批准", "温馨提示");
+      var NewClassMsg = "{" + a + "}";
+      localStorage.setItem(this.localItem, NewClassMsg);
+    },
+
+    // 提交教室申请操作
+    SubmitClassroom() {
+      if (this.input.replace(" ","") === "社团活动" || this.input.replace(" ","") === "上课") {
+        this.ClassroomItem.slice(1);
+        var NewClassItem = parseInt(this.ClassroomItem.slice(1));
+        var NewClassInfoMsg = this.input + "-(申请中)";
+        this.DeelClassInfo(NewClassInfoMsg, NewClassItem); //将教室状态重新赋值并载入内存
+        this.ClassroomInputBoxFlag = false; //将输入框隐藏
+        this.input = "";
+        this.$alert("提交申请成功，请耐心等待管理员批准", "温馨提示");
+        setTimeout(() => {
+          this.$router.go(0);
+        }, 1000);
+      }else{
+        this.$alert("请输入目前支持的活动类型：上课or社团活动(请勿在输入框中输入空格影响判断)","警告")
+      }
+    },
+
+    // 管理员处理教室请求
+    AdministratorHandle() {
+      this.ClassroomItem.slice(1);
+      var NewClassItem = parseInt(this.ClassroomItem.slice(1));
+      var NewClassInfoMsg = this.ClassroomMsg1[NewClassItem - 1][1].replace(
+        "-(申请中)",
+        ""
+      );
+      this.DeelClassInfo(NewClassInfoMsg, NewClassItem); //将教室状态重新并载入内存
+      this.AdministratorHandleBoxFlag = false; //将输入框隐藏
+      this.$alert("您已允许该预约，正在向服务器提交数据,请稍等...", "温馨提示");
       setTimeout(() => {
         this.$router.go(0);
-      }, 2000);
+      }, 1000);
     }
-
   },
 
   created() {
@@ -296,6 +339,7 @@ export default {
   background-color: white;
   min-width: 650px;
 
+  // 教师/学生请求教室输入信息框
   .classroomInputBox {
     padding: 5px;
     width: 30%;
@@ -306,12 +350,12 @@ export default {
     top: 30%;
     z-index: 99;
     border-radius: 3px;
-    p{
-    font-size: 18px;
-    line-height: 1;
-    color: #303133;
+    p {
+      font-size: 18px;
+      line-height: 1;
+      color: #303133;
     }
-    .close{
+    .close {
       border: none;
       background-color: #ccc;
       cursor: pointer;
@@ -320,8 +364,8 @@ export default {
       right: 2%;
       top: 5%;
     }
-    .close:hover{
-      color: #4AA3FF;
+    .close:hover {
+      color: #4aa3ff;
     }
     .el-input {
       width: 50%;
@@ -330,13 +374,49 @@ export default {
       top: 65%;
       left: 2%;
     }
-    .button{
+    .button {
       position: absolute;
       top: 65%;
       right: 5%;
     }
   }
 
+  // 管理员处理教室请求框
+  .AdministratorHandleBox {
+    padding: 5px;
+    width: 30%;
+    height: 20%;
+    background-color: #ccc;
+    position: absolute;
+    left: 30%;
+    top: 30%;
+    z-index: 99;
+    border-radius: 3px;
+    p {
+      font-size: 18px;
+      line-height: 1;
+      color: #303133;
+    }
+    .close {
+      border: none;
+      background-color: #ccc;
+      cursor: pointer;
+      color: #909399;
+      position: absolute;
+      right: 2%;
+      top: 5%;
+    }
+    .close:hover {
+      color: #4aa3ff;
+    }
+    .button {
+      position: absolute;
+      top: 65%;
+      right: 5%;
+    }
+  }
+
+  //顶部栏
   .topBar {
     .el-row {
       margin-bottom: 20px;
@@ -370,6 +450,7 @@ export default {
     }
   }
 
+  // 侧边栏
   .sideBar {
     position: absolute;
     top: 20%;
@@ -387,6 +468,7 @@ export default {
     }
   }
 
+  // 内容部分
   .msgBar {
     position: absolute;
     top: 20%;
